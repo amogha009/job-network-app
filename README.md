@@ -14,7 +14,6 @@ A specialized mini LinkedIn-like platform connecting data science professionals 
 - [Development Roadmap](#development-roadmap)
 - [Contributing](#contributing)
 - [License](#license)
-- [Acknowledgements](#acknowledgements)
 
 ## Overview
 The Data Science Job Network Platform is a specialized mini LinkedIn-like application designed for data science professionals and recruiters. It streamlines the recruitment process by allowing recruiters to post job opportunities and enables job seekers to search, filter, and apply for these positions. Additionally, the platform supports professional networking through profile management, connection requests, and real-time messaging.
