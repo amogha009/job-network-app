@@ -1,0 +1,20 @@
+CREATE TABLE IF NOT EXISTS data_jobs (
+    id SERIAL PRIMARY KEY,
+    job_title_short VARCHAR(50),
+    job_title TEXT,
+    job_location TEXT,
+    job_via TEXT,
+    job_schedule_type VARCHAR(50),
+    job_work_from_home BOOLEAN NOT NULL,
+    search_location TEXT NOT NULL,
+    job_posted_date TIMESTAMP NOT NULL,
+    job_no_degree_mention BOOLEAN NOT NULL,
+    job_health_insurance BOOLEAN NOT NULL,
+    job_country VARCHAR(100),
+    salary_rate VARCHAR(20),
+    salary_year_avg FLOAT,
+    salary_hour_avg FLOAT,
+    company_name TEXT,
+    job_skills TEXT,
+    job_type_skills TEXT
+);
