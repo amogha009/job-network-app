@@ -230,9 +230,7 @@ export default function Page() {
       setIsTableLoading(true);
       setTableError(null);
       try {
-        const res = await fetch(
-          `http://localhost:3000/api/datatable?page=${page}&limit=${limit}`
-        );
+        const res = await fetch(`/api/datatable?page=${page}&limit=${limit}`);
         if (!res.ok) {
           throw new Error(`Failed to fetch table data: ${res.statusText}`);
         }
@@ -260,7 +258,7 @@ export default function Page() {
     setIsCardsLoading(true);
     setCardsError(null);
     try {
-      const res = await fetch(`http://localhost:3000/api/cards`);
+      const res = await fetch(`/api/cards`);
       if (!res.ok) {
         throw new Error(`Failed to fetch card data: ${res.statusText}`);
       }
@@ -284,7 +282,7 @@ export default function Page() {
     setIsChartLoading(true);
     setChartError(null);
     try {
-      const res = await fetch(`http://localhost:3000/api/chart`);
+      const res = await fetch(`/api/chart`);
       if (!res.ok) {
         throw new Error(`Failed to fetch chart data: ${res.statusText}`);
       }
@@ -308,9 +306,7 @@ export default function Page() {
     setIsScheduleLoading(true);
     setScheduleError(null);
     try {
-      const res = await fetch(
-        `http://localhost:3000/api/charts/schedule-types`
-      );
+      const res = await fetch(`/api/charts/schedule-types`);
       if (!res.ok) {
         throw new Error(`Failed to fetch schedule types: ${res.statusText}`);
       }
@@ -337,7 +333,7 @@ export default function Page() {
     setIsLocationLoading(true);
     setLocationError(null);
     try {
-      const res = await fetch(`http://localhost:3000/api/charts/top-locations`);
+      const res = await fetch(`/api/charts/top-locations`);
       if (!res.ok) {
         throw new Error(`Failed to fetch top locations: ${res.statusText}`);
       }
@@ -363,9 +359,7 @@ export default function Page() {
     setIsWfhLoading(true);
     setWfhError(null);
     try {
-      const res = await fetch(
-        `http://localhost:3000/api/charts/wfh-distribution`
-      );
+      const res = await fetch(`/api/charts/wfh-distribution`);
       if (!res.ok)
         throw new Error(`Failed to fetch WFH distribution: ${res.statusText}`);
       const result: WfhApiResponse = await res.json();
@@ -385,9 +379,7 @@ export default function Page() {
     setIsInsuranceLoading(true);
     setInsuranceError(null);
     try {
-      const res = await fetch(
-        `http://localhost:3000/api/charts/health-insurance`
-      );
+      const res = await fetch(`/api/charts/health-insurance`);
       if (!res.ok)
         throw new Error(`Failed to fetch health insurance: ${res.statusText}`);
       const result: InsuranceApiResponse = await res.json();
@@ -408,7 +400,7 @@ export default function Page() {
     setIsNoDegreeLoading(true);
     setNoDegreeError(null);
     try {
-      const res = await fetch(`http://localhost:3000/api/charts/no-degree`);
+      const res = await fetch(`/api/charts/no-degree`);
       if (!res.ok)
         throw new Error(`Failed to fetch no degree: ${res.statusText}`);
       const result: NoDegreeApiResponse = await res.json();
@@ -429,7 +421,7 @@ export default function Page() {
     setIsCompanyLoading(true);
     setCompanyError(null);
     try {
-      const res = await fetch(`http://localhost:3000/api/charts/top-companies`);
+      const res = await fetch(`/api/charts/top-companies`);
       if (!res.ok)
         throw new Error(`Failed to fetch top companies: ${res.statusText}`);
       const result: TopCompaniesApiResponse = await res.json();
@@ -449,7 +441,7 @@ export default function Page() {
     setIsSalaryRateLoading(true);
     setSalaryRateError(null);
     try {
-      const res = await fetch(`http://localhost:3000/api/charts/salary-rate`);
+      const res = await fetch(`/api/charts/salary-rate`);
       if (!res.ok)
         throw new Error(`Failed to fetch salary rate: ${res.statusText}`);
       const result: SalaryRateApiResponse = await res.json();
@@ -469,9 +461,7 @@ export default function Page() {
     setIsScheduleWfhLoading(true);
     setScheduleWfhError(null);
     try {
-      const res = await fetch(
-        `http://localhost:3000/api/charts/schedule-wfh-split`
-      );
+      const res = await fetch(`/api/charts/schedule-wfh-split`);
       if (!res.ok)
         throw new Error(
           `Failed to fetch schedule/wfh split: ${res.statusText}`
@@ -495,9 +485,7 @@ export default function Page() {
     setIsSalaryTrendLoading(true);
     setSalaryTrendError(null);
     try {
-      const res = await fetch(
-        `http://localhost:3000/api/charts/avg-salary-trend`
-      );
+      const res = await fetch(`/api/charts/avg-salary-trend`);
       if (!res.ok)
         throw new Error(`Failed to fetch salary trend: ${res.statusText}`);
       const result: SalaryTrendApiResponse = await res.json();
