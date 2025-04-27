@@ -15,6 +15,7 @@ import { DataTable, dataJobSchema } from "@/components/data-table";
 import { SectionCards } from "@/components/section-cards";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { Input } from "@/components/ui/input";
 import { z } from "zod";
 import { toast } from "sonner";
 
@@ -149,6 +150,7 @@ export default function Page() {
     totalCount: 0,
     totalPages: 1,
   });
+  const [searchQuery, setSearchQuery] = React.useState("");
 
   // State for card data, loading, error
   const [cardData, setCardData] = React.useState<CardsApiResponse | null>(null);
@@ -226,11 +228,16 @@ export default function Page() {
 
   // Fetch table data function (client-side)
   const fetchTableData = React.useCallback(
-    async (page: number, limit: number) => {
+    async (page: number, limit: number, search: string) => {
       setIsTableLoading(true);
       setTableError(null);
       try {
-        const res = await fetch(`/api/datatable?page=${page}&limit=${limit}`);
+        const searchParam = search
+          ? `&search=${encodeURIComponent(search)}`
+          : "";
+        const res = await fetch(
+          `/api/datatable?page=${page}&limit=${limit}${searchParam}`
+        );
         if (!res.ok) {
           throw new Error(`Failed to fetch table data: ${res.statusText}`);
         }
@@ -245,7 +252,7 @@ export default function Page() {
         setTableError(errorMessage);
         toast.error("Failed to load table data", { description: errorMessage });
         setTableData([]);
-        setPagination({ page: 1, limit: 10, totalCount: 0, totalPages: 1 });
+        setPagination({ page: 1, limit: limit, totalCount: 0, totalPages: 1 });
       } finally {
         setIsTableLoading(false);
       }
@@ -311,7 +318,6 @@ export default function Page() {
         throw new Error(`Failed to fetch schedule types: ${res.statusText}`);
       }
       const result: ScheduleTypesApiResponse = await res.json();
-      console.log("Fetched Schedule Types Data:", result);
       setScheduleData(result);
     } catch (err) {
       const errorMessage =
@@ -383,7 +389,6 @@ export default function Page() {
       if (!res.ok)
         throw new Error(`Failed to fetch health insurance: ${res.statusText}`);
       const result: InsuranceApiResponse = await res.json();
-      console.log("Fetched Health Insurance Data:", result);
       setInsuranceData(result);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Unknown error";
@@ -404,7 +409,6 @@ export default function Page() {
       if (!res.ok)
         throw new Error(`Failed to fetch no degree: ${res.statusText}`);
       const result: NoDegreeApiResponse = await res.json();
-      console.log("Fetched No Degree Data:", result);
       setNoDegreeData(result);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Unknown error";
@@ -500,10 +504,13 @@ export default function Page() {
     }
   }, []);
 
-  // Effect to fetch table data on initial load and when page/limit changes
   React.useEffect(() => {
-    fetchTableData(pagination.page, pagination.limit);
-  }, [fetchTableData, pagination.page, pagination.limit]);
+    const timerId = setTimeout(() => {
+      fetchTableData(pagination.page, pagination.limit, searchQuery);
+    }, 500);
+
+    return () => clearTimeout(timerId);
+  }, [fetchTableData, pagination.page, pagination.limit, searchQuery]);
 
   // Effect to fetch card data on initial load
   React.useEffect(() => {
@@ -557,13 +564,21 @@ export default function Page() {
     fetchSalaryTrendData,
   ]);
 
-  // Handlers for pagination changes from DataTable
   const handlePageChange = (newPage: number) => {
-    setPagination((prev) => ({ ...prev, page: newPage }));
+    setPagination((prev: typeof pagination) => ({ ...prev, page: newPage }));
   };
 
   const handlePageSizeChange = (newSize: number) => {
-    setPagination((prev) => ({ ...prev, page: 1, limit: newSize }));
+    setPagination((prev: typeof pagination) => ({
+      ...prev,
+      page: 1,
+      limit: newSize,
+    }));
+  };
+
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(event.target.value);
+    setPagination((prev: typeof pagination) => ({ ...prev, page: 1 }));
   };
 
   return (
@@ -646,6 +661,14 @@ export default function Page() {
                 error={salaryTrendError}
               />
               <div className="px-4 lg:px-6">
+                <div className="mb-4">
+                  <Input
+                    placeholder="Search jobs..."
+                    value={searchQuery}
+                    onChange={handleSearchChange}
+                    className="max-w-sm"
+                  />
+                </div>
                 {isTableLoading ? (
                   <div className="text-center py-10 h-[400px] flex items-center justify-center rounded-lg border bg-card text-muted-foreground">
                     Loading table data...

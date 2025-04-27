@@ -47,7 +47,6 @@ export async function GET() {
         office: counts.office,
     })).sort((a, b) => (b.remote + b.office) - (a.remote + a.office)); // Sort by total count descending
 
-    console.log("[API] Schedule/WFH Split Data:", JSON.stringify(chartData));
     return NextResponse.json(chartData);
 
   } catch (error) {
