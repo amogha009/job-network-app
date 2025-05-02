@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server"; // Import NextRequest
 import sql from "@/lib/db";
 
 export const dynamic = 'force-dynamic';
@@ -15,14 +15,22 @@ const COLORS = {
     Office: "hsl(var(--chart-2))",
 };
 
-export async function GET() {
+export async function GET(request: NextRequest) { // Add request parameter
   try {
+    const searchParams = request.nextUrl.searchParams;
+    const search = searchParams.get('search') || ''; // Get search param
+
+    // Construct WHERE clause for search
+    const whereClause = search
+      ? sql`WHERE (job_title ILIKE ${`%${search}%`} OR company_name ILIKE ${`%${search}%`})`
+      : sql``; // Empty fragment if no search
+
     const result = await sql`
       SELECT
         job_work_from_home,
         COUNT(*) as count
       FROM data_jobs
-      -- No WHERE clause needed unless you want to exclude nulls, but boolean usually isn't null
+      ${whereClause} -- Add the where clause here
       GROUP BY job_work_from_home;
     `;
 
@@ -53,4 +61,4 @@ export async function GET() {
         { status: 500 }
     );
   }
-} 
+}

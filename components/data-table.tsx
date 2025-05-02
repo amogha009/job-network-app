@@ -630,7 +630,7 @@ interface SkillBadgeCellProps {
     limit?: number
 }
 
-function SkillBadgeCell({ skillsString, limit = 4 }: SkillBadgeCellProps) {
+function SkillBadgeCell({ skillsString, limit = 1 }: SkillBadgeCellProps) {
     const [isExpanded, setIsExpanded] = useState(false)
 
     if (!skillsString) return <div className="text-muted-foreground">N/A</div>
@@ -694,7 +694,7 @@ interface TypeSkillBadgeCellProps {
     limit?: number
 }
 
-function TypeSkillBadgeCell({ typeSkillsString, limit = 4 }: TypeSkillBadgeCellProps) {
+function TypeSkillBadgeCell({ typeSkillsString, limit = 1 }: TypeSkillBadgeCellProps) {
     const [isExpanded, setIsExpanded] = useState(false)
 
     if (!typeSkillsString) return <div className="text-muted-foreground">N/A</div>
