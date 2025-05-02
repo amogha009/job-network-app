@@ -272,15 +272,17 @@ export default function Page() {
   );
 
   // Fetch card data function (client-side)
-  const fetchCardData = React.useCallback(async (dates?: DateRange) => {
+  const fetchCardData = React.useCallback(async (search: string, dates?: DateRange) => {
     setIsCardsLoading(true);
     setCardsError(null);
     try {
-      const dateParam =
-        dates?.from && dates?.to
-          ? `?startDate=${dates.from.toISOString()}&endDate=${dates.to.toISOString()}`
-          : "";
-      const res = await fetch(`/api/cards${dateParam}`);
+      const queryParams = new URLSearchParams();
+      if (dates?.from) queryParams.set("startDate", dates.from.toISOString());
+      if (dates?.to) queryParams.set("endDate", dates.to.toISOString());
+      if (search) queryParams.set("search", search);
+      const queryString = queryParams.toString() ? `?${queryParams.toString()}` : "";
+
+      const res = await fetch(`/api/cards${queryString}`);
       if (!res.ok) {
         throw new Error(`Failed to fetch card data: ${res.statusText}`);
       }
@@ -300,15 +302,17 @@ export default function Page() {
   }, []);
 
   // Fetch chart data function (client-side)
-  const fetchChartData = React.useCallback(async (dates?: DateRange) => {
+  const fetchChartData = React.useCallback(async (search: string, dates?: DateRange) => {
     setIsChartLoading(true);
     setChartError(null);
     try {
-      const dateParam =
-        dates?.from && dates?.to
-          ? `?startDate=${dates.from.toISOString()}&endDate=${dates.to.toISOString()}`
-          : "";
-      const res = await fetch(`/api/chart${dateParam}`);
+      const queryParams = new URLSearchParams();
+      if (dates?.from) queryParams.set("startDate", dates.from.toISOString());
+      if (dates?.to) queryParams.set("endDate", dates.to.toISOString());
+      if (search) queryParams.set("search", search);
+      const queryString = queryParams.toString() ? `?${queryParams.toString()}` : "";
+
+      const res = await fetch(`/api/chart${queryString}`);
       if (!res.ok) {
         throw new Error(`Failed to fetch chart data: ${res.statusText}`);
       }
@@ -328,15 +332,17 @@ export default function Page() {
   }, []);
 
   // Fetch schedule types data
-  const fetchScheduleData = React.useCallback(async (dates?: DateRange) => {
+  const fetchScheduleData = React.useCallback(async (search: string, dates?: DateRange) => {
     setIsScheduleLoading(true);
     setScheduleError(null);
     try {
-      const dateParam =
-        dates?.from && dates?.to
-          ? `?startDate=${dates.from.toISOString()}&endDate=${dates.to.toISOString()}`
-          : "";
-      const res = await fetch(`/api/charts/schedule-types${dateParam}`);
+      const queryParams = new URLSearchParams();
+      if (dates?.from) queryParams.set("startDate", dates.from.toISOString());
+      if (dates?.to) queryParams.set("endDate", dates.to.toISOString());
+      if (search) queryParams.set("search", search);
+      const queryString = queryParams.toString() ? `?${queryParams.toString()}` : "";
+
+      const res = await fetch(`/api/charts/schedule-types${queryString}`);
       if (!res.ok) {
         throw new Error(`Failed to fetch schedule types: ${res.statusText}`);
       }
@@ -358,15 +364,17 @@ export default function Page() {
   }, []);
 
   // Fetch top locations data
-  const fetchLocationData = React.useCallback(async (dates?: DateRange) => {
+  const fetchLocationData = React.useCallback(async (search: string, dates?: DateRange) => {
     setIsLocationLoading(true);
     setLocationError(null);
     try {
-      const dateParam =
-        dates?.from && dates?.to
-          ? `?startDate=${dates.from.toISOString()}&endDate=${dates.to.toISOString()}`
-          : "";
-      const res = await fetch(`/api/charts/top-locations${dateParam}`);
+      const queryParams = new URLSearchParams();
+      if (dates?.from) queryParams.set("startDate", dates.from.toISOString());
+      if (dates?.to) queryParams.set("endDate", dates.to.toISOString());
+      if (search) queryParams.set("search", search);
+      const queryString = queryParams.toString() ? `?${queryParams.toString()}` : "";
+
+      const res = await fetch(`/api/charts/top-locations${queryString}`);
       if (!res.ok) {
         throw new Error(`Failed to fetch top locations: ${res.statusText}`);
       }
@@ -388,15 +396,17 @@ export default function Page() {
   }, []);
 
   // Fetch WFH distribution data
-  const fetchWfhData = React.useCallback(async (dates?: DateRange) => {
+  const fetchWfhData = React.useCallback(async (search: string, dates?: DateRange) => {
     setIsWfhLoading(true);
     setWfhError(null);
     try {
-      const dateParam =
-        dates?.from && dates?.to
-          ? `?startDate=${dates.from.toISOString()}&endDate=${dates.to.toISOString()}`
-          : "";
-      const res = await fetch(`/api/charts/wfh-distribution${dateParam}`);
+      const queryParams = new URLSearchParams();
+      if (dates?.from) queryParams.set("startDate", dates.from.toISOString());
+      if (dates?.to) queryParams.set("endDate", dates.to.toISOString());
+      if (search) queryParams.set("search", search);
+      const queryString = queryParams.toString() ? `?${queryParams.toString()}` : "";
+
+      const res = await fetch(`/api/charts/wfh-distribution${queryString}`);
       if (!res.ok)
         throw new Error(`Failed to fetch WFH distribution: ${res.statusText}`);
       const result: WfhApiResponse = await res.json();
@@ -412,15 +422,17 @@ export default function Page() {
   }, []);
 
   // Fetch health insurance data
-  const fetchInsuranceData = React.useCallback(async (dates?: DateRange) => {
+  const fetchInsuranceData = React.useCallback(async (search: string, dates?: DateRange) => {
     setIsInsuranceLoading(true);
     setInsuranceError(null);
     try {
-      const dateParam =
-        dates?.from && dates?.to
-          ? `?startDate=${dates.from.toISOString()}&endDate=${dates.to.toISOString()}`
-          : "";
-      const res = await fetch(`/api/charts/health-insurance${dateParam}`);
+      const queryParams = new URLSearchParams();
+      if (dates?.from) queryParams.set("startDate", dates.from.toISOString());
+      if (dates?.to) queryParams.set("endDate", dates.to.toISOString());
+      if (search) queryParams.set("search", search);
+      const queryString = queryParams.toString() ? `?${queryParams.toString()}` : "";
+
+      const res = await fetch(`/api/charts/health-insurance${queryString}`);
       if (!res.ok)
         throw new Error(`Failed to fetch health insurance: ${res.statusText}`);
       const result: InsuranceApiResponse = await res.json();
@@ -436,15 +448,17 @@ export default function Page() {
   }, []);
 
   // Fetch no degree data
-  const fetchNoDegreeData = React.useCallback(async (dates?: DateRange) => {
+  const fetchNoDegreeData = React.useCallback(async (search: string, dates?: DateRange) => {
     setIsNoDegreeLoading(true);
     setNoDegreeError(null);
     try {
-      const dateParam =
-        dates?.from && dates?.to
-          ? `?startDate=${dates.from.toISOString()}&endDate=${dates.to.toISOString()}`
-          : "";
-      const res = await fetch(`/api/charts/no-degree${dateParam}`);
+      const queryParams = new URLSearchParams();
+      if (dates?.from) queryParams.set("startDate", dates.from.toISOString());
+      if (dates?.to) queryParams.set("endDate", dates.to.toISOString());
+      if (search) queryParams.set("search", search);
+      const queryString = queryParams.toString() ? `?${queryParams.toString()}` : "";
+
+      const res = await fetch(`/api/charts/no-degree${queryString}`);
       if (!res.ok)
         throw new Error(`Failed to fetch no degree: ${res.statusText}`);
       const result: NoDegreeApiResponse = await res.json();
@@ -460,15 +474,17 @@ export default function Page() {
   }, []);
 
   // Fetch top companies data
-  const fetchCompanyData = React.useCallback(async (dates?: DateRange) => {
+  const fetchCompanyData = React.useCallback(async (search: string, dates?: DateRange) => {
     setIsCompanyLoading(true);
     setCompanyError(null);
     try {
-      const dateParam =
-        dates?.from && dates?.to
-          ? `?startDate=${dates.from.toISOString()}&endDate=${dates.to.toISOString()}`
-          : "";
-      const res = await fetch(`/api/charts/top-companies${dateParam}`);
+      const queryParams = new URLSearchParams();
+      if (dates?.from) queryParams.set("startDate", dates.from.toISOString());
+      if (dates?.to) queryParams.set("endDate", dates.to.toISOString());
+      if (search) queryParams.set("search", search);
+      const queryString = queryParams.toString() ? `?${queryParams.toString()}` : "";
+
+      const res = await fetch(`/api/charts/top-companies${queryString}`);
       if (!res.ok)
         throw new Error(`Failed to fetch top companies: ${res.statusText}`);
       const result: TopCompaniesApiResponse = await res.json();
@@ -484,15 +500,17 @@ export default function Page() {
   }, []);
 
   // Fetch salary rate data
-  const fetchSalaryRateData = React.useCallback(async (dates?: DateRange) => {
+  const fetchSalaryRateData = React.useCallback(async (search: string, dates?: DateRange) => {
     setIsSalaryRateLoading(true);
     setSalaryRateError(null);
     try {
-      const dateParam =
-        dates?.from && dates?.to
-          ? `?startDate=${dates.from.toISOString()}&endDate=${dates.to.toISOString()}`
-          : "";
-      const res = await fetch(`/api/charts/salary-rate${dateParam}`);
+      const queryParams = new URLSearchParams();
+      if (dates?.from) queryParams.set("startDate", dates.from.toISOString());
+      if (dates?.to) queryParams.set("endDate", dates.to.toISOString());
+      if (search) queryParams.set("search", search);
+      const queryString = queryParams.toString() ? `?${queryParams.toString()}` : "";
+
+      const res = await fetch(`/api/charts/salary-rate${queryString}`);
       if (!res.ok)
         throw new Error(`Failed to fetch salary rate: ${res.statusText}`);
       const result: SalaryRateApiResponse = await res.json();
@@ -508,15 +526,17 @@ export default function Page() {
   }, []);
 
   // Fetch schedule/wfh split data
-  const fetchScheduleWfhData = React.useCallback(async (dates?: DateRange) => {
+  const fetchScheduleWfhData = React.useCallback(async (search: string, dates?: DateRange) => {
     setIsScheduleWfhLoading(true);
     setScheduleWfhError(null);
     try {
-      const dateParam =
-        dates?.from && dates?.to
-          ? `?startDate=${dates.from.toISOString()}&endDate=${dates.to.toISOString()}`
-          : "";
-      const res = await fetch(`/api/charts/schedule-wfh-split${dateParam}`);
+      const queryParams = new URLSearchParams();
+      if (dates?.from) queryParams.set("startDate", dates.from.toISOString());
+      if (dates?.to) queryParams.set("endDate", dates.to.toISOString());
+      if (search) queryParams.set("search", search);
+      const queryString = queryParams.toString() ? `?${queryParams.toString()}` : "";
+
+      const res = await fetch(`/api/charts/schedule-wfh-split${queryString}`);
       if (!res.ok)
         throw new Error(
           `Failed to fetch schedule/wfh split: ${res.statusText}`
@@ -536,15 +556,17 @@ export default function Page() {
   }, []);
 
   // Fetch salary trend data
-  const fetchSalaryTrendData = React.useCallback(async (dates?: DateRange) => {
+  const fetchSalaryTrendData = React.useCallback(async (search: string, dates?: DateRange) => {
     setIsSalaryTrendLoading(true);
     setSalaryTrendError(null);
     try {
-      const dateParam =
-        dates?.from && dates?.to
-          ? `?startDate=${dates.from.toISOString()}&endDate=${dates.to.toISOString()}`
-          : "";
-      const res = await fetch(`/api/charts/avg-salary-trend${dateParam}`);
+      const queryParams = new URLSearchParams();
+      if (dates?.from) queryParams.set("startDate", dates.from.toISOString());
+      if (dates?.to) queryParams.set("endDate", dates.to.toISOString());
+      if (search) queryParams.set("search", search);
+      const queryString = queryParams.toString() ? `?${queryParams.toString()}` : "";
+
+      const res = await fetch(`/api/charts/avg-salary-trend${queryString}`);
       if (!res.ok)
         throw new Error(`Failed to fetch salary trend: ${res.statusText}`);
       const result: SalaryTrendApiResponse = await res.json();
@@ -568,20 +590,26 @@ export default function Page() {
     return () => clearTimeout(timerId);
   }, [fetchTableData, pagination.page, pagination.limit, searchQuery, dateRange]);
 
-  // Combined effect to fetch all other data based on date range
+  // Combined effect to fetch all other data based on search query and date range
   React.useEffect(() => {
-    fetchCardData(dateRange);
-    fetchChartData(dateRange);
-    fetchScheduleData(dateRange);
-    fetchLocationData(dateRange);
-    fetchWfhData(dateRange);
-    fetchInsuranceData(dateRange);
-    fetchNoDegreeData(dateRange);
-    fetchCompanyData(dateRange);
-    fetchSalaryRateData(dateRange);
-    fetchScheduleWfhData(dateRange);
-    fetchSalaryTrendData(dateRange);
+    // Debounce mechanism for chart/card fetching based on search
+    const timerId = setTimeout(() => {
+      fetchCardData(searchQuery, dateRange);
+      fetchChartData(searchQuery, dateRange);
+      fetchScheduleData(searchQuery, dateRange);
+      fetchLocationData(searchQuery, dateRange);
+      fetchWfhData(searchQuery, dateRange);
+      fetchInsuranceData(searchQuery, dateRange);
+      fetchNoDegreeData(searchQuery, dateRange);
+      fetchCompanyData(searchQuery, dateRange);
+      fetchSalaryRateData(searchQuery, dateRange);
+      fetchScheduleWfhData(searchQuery, dateRange);
+      fetchSalaryTrendData(searchQuery, dateRange);
+    }, 500); // Use the same debounce time as the table search
+
+    return () => clearTimeout(timerId);
   }, [
+    searchQuery, // Add searchQuery to dependencies
     dateRange,
     fetchCardData,
     fetchChartData,
@@ -619,9 +647,38 @@ export default function Page() {
         <SiteHeader />
         <div className="flex flex-1 flex-col">
           <div className="@container/main flex flex-1 flex-col gap-2">
-            <div className="flex items-center justify-end gap-2 px-4 pt-4 lg:px-6">
+            <div className="flex items-center justify-between gap-2 px-4 pt-4 lg:px-6"> {/* Changed justify-end to justify-between */}
+               {/* Search Input Moved Here */}
+               <Input
+                 placeholder="Search jobs..."
+                 value={searchQuery}
+                 onChange={handleSearchChange}
+                 className="max-w-sm"
+               />
                <DateRangePicker dateRange={dateRange} onChange={setDateRange} />
             </div>
+             {/* DataTable Moved Here */}
+             <div className="px-4 lg:px-6">
+               {isTableLoading ? (
+                 <div className="text-center py-10 h-[400px] flex items-center justify-center rounded-lg border bg-card text-muted-foreground">
+                   Loading table data...
+                 </div>
+               ) : tableError ? (
+                 <div className="text-center py-10 h-[400px] flex items-center justify-center rounded-lg border border-red-600/50 bg-red-500/10 text-red-600">
+                   Table Error: {tableError}
+                 </div>
+               ) : (
+                 <DataTable
+                   data={tableData}
+                   pageCount={pagination.totalPages}
+                   totalCount={pagination.totalCount}
+                   currentPage={pagination.page}
+                   pageSize={pagination.limit}
+                   onPageChange={handlePageChange}
+                   onPageSizeChange={handlePageSizeChange}
+                 />
+               )}
+             </div>
             <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
               <SectionCards
                 data={cardData}
@@ -695,35 +752,7 @@ export default function Page() {
                 isLoading={isSalaryTrendLoading}
                 error={salaryTrendError}
               />
-              <div className="px-4 lg:px-6">
-                <div className="mb-4 flex items-center justify-between">
-                  <Input
-                    placeholder="Search jobs..."
-                    value={searchQuery}
-                    onChange={handleSearchChange}
-                    className="max-w-sm"
-                  />
-                </div>
-                {isTableLoading ? (
-                  <div className="text-center py-10 h-[400px] flex items-center justify-center rounded-lg border bg-card text-muted-foreground">
-                    Loading table data...
-                  </div>
-                ) : tableError ? (
-                  <div className="text-center py-10 h-[400px] flex items-center justify-center rounded-lg border border-red-600/50 bg-red-500/10 text-red-600">
-                    Table Error: {tableError}
-                  </div>
-                ) : (
-                  <DataTable
-                    data={tableData}
-                    pageCount={pagination.totalPages}
-                    totalCount={pagination.totalCount}
-                    currentPage={pagination.page}
-                    pageSize={pagination.limit}
-                    onPageChange={handlePageChange}
-                    onPageSizeChange={handlePageSizeChange}
-                  />
-                )}
-              </div>
+              {/* Search Input and DataTable section removed from here */}
             </div>
           </div>
         </div>

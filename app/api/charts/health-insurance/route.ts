@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server"; // Import NextRequest
 import sql from "@/lib/db";
 
 export const dynamic = 'force-dynamic';
@@ -16,14 +16,22 @@ const COLORS = {
     Unknown: "hsl(var(--chart-3))",
 };
 
-export async function GET() {
+export async function GET(request: NextRequest) { // Add request parameter
   try {
+    const searchParams = request.nextUrl.searchParams;
+    const search = searchParams.get('search') || ''; // Get search param
+
+    // Construct WHERE clause for search
+    const whereClause = search
+      ? sql`WHERE (job_title ILIKE ${`%${search}%`} OR company_name ILIKE ${`%${search}%`})`
+      : sql``; // Empty fragment if no search
+
     const result = await sql`
       SELECT
         job_health_insurance,
         COUNT(*) as count
       FROM data_jobs
-      -- Group by the boolean column directly
+      ${whereClause} -- Add the where clause here
       GROUP BY job_health_insurance;
     `;
 
@@ -69,4 +77,4 @@ export async function GET() {
         { status: 500 }
     );
   }
-} 
+}

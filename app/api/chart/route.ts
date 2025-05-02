@@ -8,6 +8,7 @@ export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const startDateStr = searchParams.get('startDate');
   const endDateStr = searchParams.get('endDate');
+  const search = searchParams.get('search') || ''; // Get search param, default to empty string
 
   let queryStartDate: Date;
   let queryEndDate: Date;
@@ -25,13 +26,19 @@ export async function GET(request: NextRequest) {
         responseRangeEnd = parsedEnd;
     } else {
         console.warn("Invalid date range provided, falling back to default.");
-        return await getDefaultChartData();
+        return await getDefaultChartData(search); // Pass search
     }
   } else {
-    return await getDefaultChartData();
+    return await getDefaultChartData(search); // Pass search
   }
 
   try {
+    // Add search condition
+    const searchTerm = `%${search}%`;
+    const searchCondition = search
+      ? sql`AND (job_title ILIKE ${searchTerm} OR company_name ILIKE ${searchTerm})`
+      : sql``; // Empty fragment if no search
+
     const result = await sql`
       SELECT
         TO_CHAR(DATE_TRUNC('month', job_posted_date), 'YYYY-MM-DD') as month,
@@ -39,6 +46,7 @@ export async function GET(request: NextRequest) {
       FROM data_jobs
       WHERE job_posted_date >= ${format(queryStartDate, 'yyyy-MM-dd')}::date
         AND job_posted_date < ${format(queryEndDate, 'yyyy-MM-dd')}::date
+        ${searchCondition} -- Add search condition here
       GROUP BY DATE_TRUNC('month', job_posted_date)
       ORDER BY month ASC;
     `;
@@ -80,8 +88,15 @@ export async function GET(request: NextRequest) {
   }
 }
 
-async function getDefaultChartData() {
+// Update function signature to accept search
+async function getDefaultChartData(search: string) {
      try {
+        // Add search condition logic here too
+        const searchTerm = `%${search}%`;
+        const searchCondition = search
+          ? sql`AND (job_title ILIKE ${searchTerm} OR company_name ILIKE ${searchTerm})`
+          : sql``; // Empty fragment if no search
+
         const maxDateResult = await sql`SELECT MAX(job_posted_date) as max_date FROM data_jobs;`;
         const maxDbDate = maxDateResult[0]?.max_date ? new Date(maxDateResult[0].max_date) : new Date();
 
@@ -96,6 +111,7 @@ async function getDefaultChartData() {
           FROM data_jobs
           WHERE job_posted_date >= ${format(defaultStartDate, 'yyyy-MM-dd')}::date
             AND job_posted_date < ${format(defaultEndDate, 'yyyy-MM-dd')}::date
+            ${searchCondition} -- Add search condition here
           GROUP BY DATE_TRUNC('month', job_posted_date)
           ORDER BY month ASC;
         `;
@@ -131,4 +147,4 @@ async function getDefaultChartData() {
             { status: 500 }
         );
     }
-} 
+}

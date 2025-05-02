@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import sql from "@/lib/db";
 
+import { NextRequest } from "next/server"; // Import NextRequest
+
 export const dynamic = "force-dynamic";
 
 interface SalaryTrendData {
@@ -8,8 +10,11 @@ interface SalaryTrendData {
   avg_salary: number | null; // Can be null if no jobs with salary in a month
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) { // Add request parameter
   try {
+    const searchParams = request.nextUrl.searchParams;
+    const search = searchParams.get('search') || ''; // Get search param
+
     // Find the latest date in the dataset
     const maxDateResult =
       await sql`SELECT MAX(job_posted_date) as max_date FROM data_jobs;`;
@@ -34,6 +39,7 @@ export async function GET() {
       WHERE job_posted_date >= ${startDate.toISOString().split("T")[0]}::date
         AND job_posted_date < ${endDate.toISOString().split("T")[0]}::date
         AND salary_year_avg IS NOT NULL -- Only consider jobs where salary is known
+        ${search ? sql`AND (job_title ILIKE ${`%${search}%`} OR company_name ILIKE ${`%${search}%`})` : sql``} -- Add search condition
       GROUP BY DATE_TRUNC('month', job_posted_date)
       ORDER BY month ASC;
     `;
