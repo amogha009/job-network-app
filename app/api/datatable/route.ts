@@ -9,6 +9,10 @@ export async function GET(request: NextRequest) {
   const search = searchParams.get('search');
   const startDateStr = searchParams.get('startDate');
   const endDateStr = searchParams.get('endDate');
+  const location = searchParams.get('location'); // Get location filter
+  const schedule = searchParams.get('schedule'); // Get schedule filter
+  const minSalaryStr = searchParams.get('minSalary'); // Get min salary filter
+  const maxSalaryStr = searchParams.get('maxSalary'); // Get max salary filter
 
   let startDate: Date | null = null;
   let endDate: Date | null = null;
@@ -41,9 +45,30 @@ export async function GET(request: NextRequest) {
 
   // Add date range condition if dates are valid
   if (dateFilterActive && startDate && endDate) {
-    // Adjust column name and use ::date casting for comparison
     conditions = sql`${conditions} AND job_posted_date >= ${startDate.toISOString()}::date AND job_posted_date <= ${endDate.toISOString()}::date`;
   }
+
+  // Add location condition if provided
+  if (location) {
+    conditions = sql`${conditions} AND job_location = ${location}`;
+  }
+
+  // Add schedule type condition if provided
+  if (schedule) {
+    conditions = sql`${conditions} AND job_schedule_type = ${schedule}`;
+  }
+
+  // Add salary range conditions if provided and valid
+  const minSalary = minSalaryStr ? parseFloat(minSalaryStr) : null;
+  const maxSalary = maxSalaryStr ? parseFloat(maxSalaryStr) : null;
+
+  if (minSalary !== null && !isNaN(minSalary)) {
+    conditions = sql`${conditions} AND salary_year_avg >= ${minSalary}`;
+  }
+  if (maxSalary !== null && !isNaN(maxSalary)) {
+    conditions = sql`${conditions} AND salary_year_avg <= ${maxSalary}`;
+  }
+
 
   try {
     // Apply conditions to data query

@@ -24,6 +24,10 @@ export async function GET(request: NextRequest) { // Add request parameter
   try {
     const searchParams = request.nextUrl.searchParams;
     const search = searchParams.get('search') || ''; // Get search param
+    const location = searchParams.get('location');
+    const schedule = searchParams.get('schedule');
+    const minSalaryStr = searchParams.get('minSalary');
+    const maxSalaryStr = searchParams.get('maxSalary');
 
     // Base conditions
     let baseConditions: any[] = [sql`job_schedule_type IS NOT NULL`];
@@ -32,6 +36,23 @@ export async function GET(request: NextRequest) { // Add request parameter
     if (search) {
       const searchTerm = `%${search}%`;
       baseConditions.push(sql`(job_title ILIKE ${searchTerm} OR company_name ILIKE ${searchTerm})`);
+    }
+    // Add location condition
+    if (location) {
+      baseConditions.push(sql`job_location = ${location}`);
+    }
+    // Add schedule type condition
+    if (schedule) {
+      baseConditions.push(sql`job_schedule_type = ${schedule}`);
+    }
+    // Add salary range conditions
+    const minSalary = minSalaryStr ? parseFloat(minSalaryStr) : null;
+    const maxSalary = maxSalaryStr ? parseFloat(maxSalaryStr) : null;
+    if (minSalary !== null && !isNaN(minSalary)) {
+      baseConditions.push(sql`salary_year_avg >= ${minSalary}`);
+    }
+    if (maxSalary !== null && !isNaN(maxSalary)) {
+      baseConditions.push(sql`salary_year_avg <= ${maxSalary}`);
     }
 
     // Combine conditions with AND, starting with WHERE

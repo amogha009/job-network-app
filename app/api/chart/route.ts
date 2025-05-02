@@ -9,6 +9,10 @@ export async function GET(request: NextRequest) {
   const startDateStr = searchParams.get('startDate');
   const endDateStr = searchParams.get('endDate');
   const search = searchParams.get('search') || ''; // Get search param, default to empty string
+  const location = searchParams.get('location'); // Get location filter
+  const schedule = searchParams.get('schedule'); // Get schedule filter
+  const minSalaryStr = searchParams.get('minSalary'); // Get min salary filter
+  const maxSalaryStr = searchParams.get('maxSalary'); // Get max salary filter
 
   let queryStartDate: Date;
   let queryEndDate: Date;
@@ -26,18 +30,53 @@ export async function GET(request: NextRequest) {
         responseRangeEnd = parsedEnd;
     } else {
         console.warn("Invalid date range provided, falling back to default.");
-        return await getDefaultChartData(search); // Pass search
+        // Pass all filters to default function
+        return await getDefaultChartData(search, location, schedule, minSalaryStr, maxSalaryStr);
     }
   } else {
-    return await getDefaultChartData(search); // Pass search
+    // Pass all filters to default function
+    return await getDefaultChartData(search, location, schedule, minSalaryStr, maxSalaryStr);
   }
 
   try {
+    // Build base conditions array
+    let baseConditions: any[] = [];
+
     // Add search condition
-    const searchTerm = `%${search}%`;
-    const searchCondition = search
-      ? sql`AND (job_title ILIKE ${searchTerm} OR company_name ILIKE ${searchTerm})`
-      : sql``; // Empty fragment if no search
+    if (search) {
+      const searchTerm = `%${search}%`;
+      baseConditions.push(sql`(job_title ILIKE ${searchTerm} OR company_name ILIKE ${searchTerm})`);
+    }
+    // Add location condition
+    if (location) {
+      baseConditions.push(sql`job_location = ${location}`);
+    }
+    // Add schedule condition
+    if (schedule) {
+      baseConditions.push(sql`job_schedule_type = ${schedule}`);
+    }
+    // Add salary conditions
+    const minSalary = minSalaryStr ? parseFloat(minSalaryStr) : null;
+    const maxSalary = maxSalaryStr ? parseFloat(maxSalaryStr) : null;
+    if (minSalary !== null && !isNaN(minSalary)) {
+      baseConditions.push(sql`salary_year_avg >= ${minSalary}`);
+    }
+    if (maxSalary !== null && !isNaN(maxSalary)) {
+      baseConditions.push(sql`salary_year_avg <= ${maxSalary}`);
+    }
+
+    // Combine conditions with AND
+    let filterConditions = sql``;
+    if (baseConditions.length > 0) {
+      filterConditions = sql`AND `; // Start with AND since date is always present here
+      baseConditions.forEach((condition, index) => {
+        filterConditions = sql`${filterConditions}${condition}`;
+        if (index < baseConditions.length - 1) {
+          filterConditions = sql`${filterConditions} AND `;
+        }
+      });
+    }
+
 
     const result = await sql`
       SELECT
@@ -46,7 +85,7 @@ export async function GET(request: NextRequest) {
       FROM data_jobs
       WHERE job_posted_date >= ${format(queryStartDate, 'yyyy-MM-dd')}::date
         AND job_posted_date < ${format(queryEndDate, 'yyyy-MM-dd')}::date
-        ${searchCondition} -- Add search condition here
+        ${filterConditions} -- Add combined filter conditions here
       GROUP BY DATE_TRUNC('month', job_posted_date)
       ORDER BY month ASC;
     `;
@@ -88,14 +127,52 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// Update function signature to accept search
-async function getDefaultChartData(search: string) {
+// Update function signature to accept all filters
+async function getDefaultChartData(
+    search: string,
+    location: string | null,
+    schedule: string | null,
+    minSalaryStr: string | null,
+    maxSalaryStr: string | null
+) {
      try {
-        // Add search condition logic here too
-        const searchTerm = `%${search}%`;
-        const searchCondition = search
-          ? sql`AND (job_title ILIKE ${searchTerm} OR company_name ILIKE ${searchTerm})`
-          : sql``; // Empty fragment if no search
+        // Build base conditions array for default data
+        let baseConditions: any[] = [];
+
+        // Add search condition
+        if (search) {
+          const searchTerm = `%${search}%`;
+          baseConditions.push(sql`(job_title ILIKE ${searchTerm} OR company_name ILIKE ${searchTerm})`);
+        }
+        // Add location condition
+        if (location) {
+          baseConditions.push(sql`job_location = ${location}`);
+        }
+        // Add schedule condition
+        if (schedule) {
+          baseConditions.push(sql`job_schedule_type = ${schedule}`);
+        }
+        // Add salary conditions
+        const minSalary = minSalaryStr ? parseFloat(minSalaryStr) : null;
+        const maxSalary = maxSalaryStr ? parseFloat(maxSalaryStr) : null;
+        if (minSalary !== null && !isNaN(minSalary)) {
+          baseConditions.push(sql`salary_year_avg >= ${minSalary}`);
+        }
+        if (maxSalary !== null && !isNaN(maxSalary)) {
+          baseConditions.push(sql`salary_year_avg <= ${maxSalary}`);
+        }
+
+        // Combine conditions with AND
+        let filterConditions = sql``;
+        if (baseConditions.length > 0) {
+          filterConditions = sql`AND `; // Start with AND since date is always present here
+          baseConditions.forEach((condition, index) => {
+            filterConditions = sql`${filterConditions}${condition}`;
+            if (index < baseConditions.length - 1) {
+              filterConditions = sql`${filterConditions} AND `;
+            }
+          });
+        }
 
         const maxDateResult = await sql`SELECT MAX(job_posted_date) as max_date FROM data_jobs;`;
         const maxDbDate = maxDateResult[0]?.max_date ? new Date(maxDateResult[0].max_date) : new Date();
@@ -111,7 +188,7 @@ async function getDefaultChartData(search: string) {
           FROM data_jobs
           WHERE job_posted_date >= ${format(defaultStartDate, 'yyyy-MM-dd')}::date
             AND job_posted_date < ${format(defaultEndDate, 'yyyy-MM-dd')}::date
-            ${searchCondition} -- Add search condition here
+            ${filterConditions} -- Add combined filter conditions here
           GROUP BY DATE_TRUNC('month', job_posted_date)
           ORDER BY month ASC;
         `;

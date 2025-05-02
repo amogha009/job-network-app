@@ -16,6 +16,14 @@ import { SectionCards } from "@/components/section-cards";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"; // Import Select components
+import { Label } from "@/components/ui/label"; // Import Label
 import { z } from "zod";
 import { toast } from "sonner";
 import { DateRangePicker } from "@/components/ui/date-range-picker";
@@ -158,6 +166,11 @@ export default function Page() {
   const [dateRange, setDateRange] = React.useState<DateRange | undefined>(
     undefined
   );
+  const [selectedLocation, setSelectedLocation] = React.useState<string>(""); // State for location filter
+  const [selectedSchedule, setSelectedSchedule] = React.useState<string>(""); // State for schedule filter
+  const [minSalary, setMinSalary] = React.useState<string>(""); // State for min salary
+  const [maxSalary, setMaxSalary] = React.useState<string>(""); // State for max salary
+
 
   // State for card data, loading, error
   const [cardData, setCardData] = React.useState<CardsApiResponse | null>(null);
@@ -235,20 +248,32 @@ export default function Page() {
 
   // Fetch table data function (client-side)
   const fetchTableData = React.useCallback(
-    async (page: number, limit: number, search: string, dates?: DateRange) => {
+    async (
+      page: number,
+      limit: number,
+      search: string,
+      dates?: DateRange,
+      location?: string,
+      schedule?: string,
+      minSal?: string,
+      maxSal?: string
+    ) => {
       setIsTableLoading(true);
       setTableError(null);
       try {
-        const searchParam = search
-          ? `&search=${encodeURIComponent(search)}`
-          : "";
-        const dateParam =
-          dates?.from && dates?.to
-            ? `&startDate=${dates.from.toISOString()}&endDate=${dates.to.toISOString()}`
-            : "";
-        const res = await fetch(
-          `/api/datatable?page=${page}&limit=${limit}${searchParam}${dateParam}`
-        );
+        const queryParams = new URLSearchParams({
+          page: page.toString(),
+          limit: limit.toString(),
+        });
+        if (search) queryParams.set("search", search);
+        if (dates?.from) queryParams.set("startDate", dates.from.toISOString());
+        if (dates?.to) queryParams.set("endDate", dates.to.toISOString());
+        if (location) queryParams.set("location", location);
+        if (schedule) queryParams.set("schedule", schedule);
+        if (minSal) queryParams.set("minSalary", minSal);
+        if (maxSal) queryParams.set("maxSalary", maxSal);
+
+        const res = await fetch(`/api/datatable?${queryParams.toString()}`);
         if (!res.ok) {
           throw new Error(`Failed to fetch table data: ${res.statusText}`);
         }
@@ -272,14 +297,25 @@ export default function Page() {
   );
 
   // Fetch card data function (client-side)
-  const fetchCardData = React.useCallback(async (search: string, dates?: DateRange) => {
+  const fetchCardData = React.useCallback(async (
+    search: string,
+    dates?: DateRange,
+    location?: string,
+    schedule?: string,
+    minSal?: string,
+    maxSal?: string
+  ) => {
     setIsCardsLoading(true);
     setCardsError(null);
     try {
       const queryParams = new URLSearchParams();
+      if (search) queryParams.set("search", search);
       if (dates?.from) queryParams.set("startDate", dates.from.toISOString());
       if (dates?.to) queryParams.set("endDate", dates.to.toISOString());
-      if (search) queryParams.set("search", search);
+      if (location) queryParams.set("location", location);
+      if (schedule) queryParams.set("schedule", schedule);
+      if (minSal) queryParams.set("minSalary", minSal);
+      if (maxSal) queryParams.set("maxSalary", maxSal);
       const queryString = queryParams.toString() ? `?${queryParams.toString()}` : "";
 
       const res = await fetch(`/api/cards${queryString}`);
@@ -302,14 +338,25 @@ export default function Page() {
   }, []);
 
   // Fetch chart data function (client-side)
-  const fetchChartData = React.useCallback(async (search: string, dates?: DateRange) => {
+  const fetchChartData = React.useCallback(async (
+    search: string,
+    dates?: DateRange,
+    location?: string,
+    schedule?: string,
+    minSal?: string,
+    maxSal?: string
+  ) => {
     setIsChartLoading(true);
     setChartError(null);
     try {
       const queryParams = new URLSearchParams();
+      if (search) queryParams.set("search", search);
       if (dates?.from) queryParams.set("startDate", dates.from.toISOString());
       if (dates?.to) queryParams.set("endDate", dates.to.toISOString());
-      if (search) queryParams.set("search", search);
+      if (location) queryParams.set("location", location);
+      if (schedule) queryParams.set("schedule", schedule);
+      if (minSal) queryParams.set("minSalary", minSal);
+      if (maxSal) queryParams.set("maxSalary", maxSal);
       const queryString = queryParams.toString() ? `?${queryParams.toString()}` : "";
 
       const res = await fetch(`/api/chart${queryString}`);
@@ -332,14 +379,25 @@ export default function Page() {
   }, []);
 
   // Fetch schedule types data
-  const fetchScheduleData = React.useCallback(async (search: string, dates?: DateRange) => {
+  const fetchScheduleData = React.useCallback(async (
+    search: string,
+    dates?: DateRange,
+    location?: string,
+    schedule?: string,
+    minSal?: string,
+    maxSal?: string
+  ) => {
     setIsScheduleLoading(true);
     setScheduleError(null);
     try {
       const queryParams = new URLSearchParams();
+      if (search) queryParams.set("search", search);
       if (dates?.from) queryParams.set("startDate", dates.from.toISOString());
       if (dates?.to) queryParams.set("endDate", dates.to.toISOString());
-      if (search) queryParams.set("search", search);
+      if (location) queryParams.set("location", location);
+      if (schedule) queryParams.set("schedule", schedule);
+      if (minSal) queryParams.set("minSalary", minSal);
+      if (maxSal) queryParams.set("maxSalary", maxSal);
       const queryString = queryParams.toString() ? `?${queryParams.toString()}` : "";
 
       const res = await fetch(`/api/charts/schedule-types${queryString}`);
@@ -364,14 +422,25 @@ export default function Page() {
   }, []);
 
   // Fetch top locations data
-  const fetchLocationData = React.useCallback(async (search: string, dates?: DateRange) => {
+  const fetchLocationData = React.useCallback(async (
+    search: string,
+    dates?: DateRange,
+    location?: string,
+    schedule?: string,
+    minSal?: string,
+    maxSal?: string
+  ) => {
     setIsLocationLoading(true);
     setLocationError(null);
     try {
       const queryParams = new URLSearchParams();
+      if (search) queryParams.set("search", search);
       if (dates?.from) queryParams.set("startDate", dates.from.toISOString());
       if (dates?.to) queryParams.set("endDate", dates.to.toISOString());
-      if (search) queryParams.set("search", search);
+      if (location) queryParams.set("location", location);
+      if (schedule) queryParams.set("schedule", schedule);
+      if (minSal) queryParams.set("minSalary", minSal);
+      if (maxSal) queryParams.set("maxSalary", maxSal);
       const queryString = queryParams.toString() ? `?${queryParams.toString()}` : "";
 
       const res = await fetch(`/api/charts/top-locations${queryString}`);
@@ -396,14 +465,25 @@ export default function Page() {
   }, []);
 
   // Fetch WFH distribution data
-  const fetchWfhData = React.useCallback(async (search: string, dates?: DateRange) => {
+  const fetchWfhData = React.useCallback(async (
+    search: string,
+    dates?: DateRange,
+    location?: string,
+    schedule?: string,
+    minSal?: string,
+    maxSal?: string
+  ) => {
     setIsWfhLoading(true);
     setWfhError(null);
     try {
       const queryParams = new URLSearchParams();
+      if (search) queryParams.set("search", search);
       if (dates?.from) queryParams.set("startDate", dates.from.toISOString());
       if (dates?.to) queryParams.set("endDate", dates.to.toISOString());
-      if (search) queryParams.set("search", search);
+      if (location) queryParams.set("location", location);
+      if (schedule) queryParams.set("schedule", schedule);
+      if (minSal) queryParams.set("minSalary", minSal);
+      if (maxSal) queryParams.set("maxSalary", maxSal);
       const queryString = queryParams.toString() ? `?${queryParams.toString()}` : "";
 
       const res = await fetch(`/api/charts/wfh-distribution${queryString}`);
@@ -422,14 +502,25 @@ export default function Page() {
   }, []);
 
   // Fetch health insurance data
-  const fetchInsuranceData = React.useCallback(async (search: string, dates?: DateRange) => {
+  const fetchInsuranceData = React.useCallback(async (
+    search: string,
+    dates?: DateRange,
+    location?: string,
+    schedule?: string,
+    minSal?: string,
+    maxSal?: string
+  ) => {
     setIsInsuranceLoading(true);
     setInsuranceError(null);
     try {
       const queryParams = new URLSearchParams();
+      if (search) queryParams.set("search", search);
       if (dates?.from) queryParams.set("startDate", dates.from.toISOString());
       if (dates?.to) queryParams.set("endDate", dates.to.toISOString());
-      if (search) queryParams.set("search", search);
+      if (location) queryParams.set("location", location);
+      if (schedule) queryParams.set("schedule", schedule);
+      if (minSal) queryParams.set("minSalary", minSal);
+      if (maxSal) queryParams.set("maxSalary", maxSal);
       const queryString = queryParams.toString() ? `?${queryParams.toString()}` : "";
 
       const res = await fetch(`/api/charts/health-insurance${queryString}`);
@@ -448,14 +539,25 @@ export default function Page() {
   }, []);
 
   // Fetch no degree data
-  const fetchNoDegreeData = React.useCallback(async (search: string, dates?: DateRange) => {
+  const fetchNoDegreeData = React.useCallback(async (
+    search: string,
+    dates?: DateRange,
+    location?: string,
+    schedule?: string,
+    minSal?: string,
+    maxSal?: string
+  ) => {
     setIsNoDegreeLoading(true);
     setNoDegreeError(null);
     try {
       const queryParams = new URLSearchParams();
+      if (search) queryParams.set("search", search);
       if (dates?.from) queryParams.set("startDate", dates.from.toISOString());
       if (dates?.to) queryParams.set("endDate", dates.to.toISOString());
-      if (search) queryParams.set("search", search);
+      if (location) queryParams.set("location", location);
+      if (schedule) queryParams.set("schedule", schedule);
+      if (minSal) queryParams.set("minSalary", minSal);
+      if (maxSal) queryParams.set("maxSalary", maxSal);
       const queryString = queryParams.toString() ? `?${queryParams.toString()}` : "";
 
       const res = await fetch(`/api/charts/no-degree${queryString}`);
@@ -474,14 +576,25 @@ export default function Page() {
   }, []);
 
   // Fetch top companies data
-  const fetchCompanyData = React.useCallback(async (search: string, dates?: DateRange) => {
+  const fetchCompanyData = React.useCallback(async (
+    search: string,
+    dates?: DateRange,
+    location?: string,
+    schedule?: string,
+    minSal?: string,
+    maxSal?: string
+  ) => {
     setIsCompanyLoading(true);
     setCompanyError(null);
     try {
       const queryParams = new URLSearchParams();
+      if (search) queryParams.set("search", search);
       if (dates?.from) queryParams.set("startDate", dates.from.toISOString());
       if (dates?.to) queryParams.set("endDate", dates.to.toISOString());
-      if (search) queryParams.set("search", search);
+      if (location) queryParams.set("location", location);
+      if (schedule) queryParams.set("schedule", schedule);
+      if (minSal) queryParams.set("minSalary", minSal);
+      if (maxSal) queryParams.set("maxSalary", maxSal);
       const queryString = queryParams.toString() ? `?${queryParams.toString()}` : "";
 
       const res = await fetch(`/api/charts/top-companies${queryString}`);
@@ -500,14 +613,25 @@ export default function Page() {
   }, []);
 
   // Fetch salary rate data
-  const fetchSalaryRateData = React.useCallback(async (search: string, dates?: DateRange) => {
+  const fetchSalaryRateData = React.useCallback(async (
+    search: string,
+    dates?: DateRange,
+    location?: string,
+    schedule?: string,
+    minSal?: string,
+    maxSal?: string
+  ) => {
     setIsSalaryRateLoading(true);
     setSalaryRateError(null);
     try {
       const queryParams = new URLSearchParams();
+      if (search) queryParams.set("search", search);
       if (dates?.from) queryParams.set("startDate", dates.from.toISOString());
       if (dates?.to) queryParams.set("endDate", dates.to.toISOString());
-      if (search) queryParams.set("search", search);
+      if (location) queryParams.set("location", location);
+      if (schedule) queryParams.set("schedule", schedule);
+      if (minSal) queryParams.set("minSalary", minSal);
+      if (maxSal) queryParams.set("maxSalary", maxSal);
       const queryString = queryParams.toString() ? `?${queryParams.toString()}` : "";
 
       const res = await fetch(`/api/charts/salary-rate${queryString}`);
@@ -526,14 +650,25 @@ export default function Page() {
   }, []);
 
   // Fetch schedule/wfh split data
-  const fetchScheduleWfhData = React.useCallback(async (search: string, dates?: DateRange) => {
+  const fetchScheduleWfhData = React.useCallback(async (
+    search: string,
+    dates?: DateRange,
+    location?: string,
+    schedule?: string,
+    minSal?: string,
+    maxSal?: string
+  ) => {
     setIsScheduleWfhLoading(true);
     setScheduleWfhError(null);
     try {
       const queryParams = new URLSearchParams();
+      if (search) queryParams.set("search", search);
       if (dates?.from) queryParams.set("startDate", dates.from.toISOString());
       if (dates?.to) queryParams.set("endDate", dates.to.toISOString());
-      if (search) queryParams.set("search", search);
+      if (location) queryParams.set("location", location);
+      if (schedule) queryParams.set("schedule", schedule);
+      if (minSal) queryParams.set("minSalary", minSal);
+      if (maxSal) queryParams.set("maxSalary", maxSal);
       const queryString = queryParams.toString() ? `?${queryParams.toString()}` : "";
 
       const res = await fetch(`/api/charts/schedule-wfh-split${queryString}`);
@@ -556,14 +691,25 @@ export default function Page() {
   }, []);
 
   // Fetch salary trend data
-  const fetchSalaryTrendData = React.useCallback(async (search: string, dates?: DateRange) => {
+  const fetchSalaryTrendData = React.useCallback(async (
+    search: string,
+    dates?: DateRange,
+    location?: string,
+    schedule?: string,
+    minSal?: string,
+    maxSal?: string
+  ) => {
     setIsSalaryTrendLoading(true);
     setSalaryTrendError(null);
     try {
       const queryParams = new URLSearchParams();
+      if (search) queryParams.set("search", search);
       if (dates?.from) queryParams.set("startDate", dates.from.toISOString());
       if (dates?.to) queryParams.set("endDate", dates.to.toISOString());
-      if (search) queryParams.set("search", search);
+      if (location) queryParams.set("location", location);
+      if (schedule) queryParams.set("schedule", schedule);
+      if (minSal) queryParams.set("minSalary", minSal);
+      if (maxSal) queryParams.set("maxSalary", maxSal);
       const queryString = queryParams.toString() ? `?${queryParams.toString()}` : "";
 
       const res = await fetch(`/api/charts/avg-salary-trend${queryString}`);
@@ -581,36 +727,59 @@ export default function Page() {
     }
   }, []);
 
-  // Debounced effect for table data fetching based on search and pagination
+  // Debounced effect for table data fetching based on search, filters, and pagination
   React.useEffect(() => {
     const timerId = setTimeout(() => {
-      fetchTableData(pagination.page, pagination.limit, searchQuery, dateRange);
-    }, 500);
-
-    return () => clearTimeout(timerId);
-  }, [fetchTableData, pagination.page, pagination.limit, searchQuery, dateRange]);
-
-  // Combined effect to fetch all other data based on search query and date range
-  React.useEffect(() => {
-    // Debounce mechanism for chart/card fetching based on search
-    const timerId = setTimeout(() => {
-      fetchCardData(searchQuery, dateRange);
-      fetchChartData(searchQuery, dateRange);
-      fetchScheduleData(searchQuery, dateRange);
-      fetchLocationData(searchQuery, dateRange);
-      fetchWfhData(searchQuery, dateRange);
-      fetchInsuranceData(searchQuery, dateRange);
-      fetchNoDegreeData(searchQuery, dateRange);
-      fetchCompanyData(searchQuery, dateRange);
-      fetchSalaryRateData(searchQuery, dateRange);
-      fetchScheduleWfhData(searchQuery, dateRange);
-      fetchSalaryTrendData(searchQuery, dateRange);
-    }, 500); // Use the same debounce time as the table search
+      fetchTableData(
+        pagination.page,
+        pagination.limit,
+        searchQuery,
+        dateRange,
+        selectedLocation,
+        selectedSchedule,
+        minSalary,
+        maxSalary
+      );
+    }, 500); // Debounce time
 
     return () => clearTimeout(timerId);
   }, [
-    searchQuery, // Add searchQuery to dependencies
+    fetchTableData,
+    pagination.page,
+    pagination.limit,
+    searchQuery,
     dateRange,
+    selectedLocation, // Add filter states
+    selectedSchedule,
+    minSalary,
+    maxSalary,
+  ]);
+
+  // Combined effect to fetch all other data based on search query and filters
+  React.useEffect(() => {
+    // Debounce mechanism for chart/card fetching
+    const timerId = setTimeout(() => {
+      fetchCardData(searchQuery, dateRange, selectedLocation, selectedSchedule, minSalary, maxSalary);
+      fetchChartData(searchQuery, dateRange, selectedLocation, selectedSchedule, minSalary, maxSalary);
+      fetchScheduleData(searchQuery, dateRange, selectedLocation, selectedSchedule, minSalary, maxSalary);
+      fetchLocationData(searchQuery, dateRange, selectedLocation, selectedSchedule, minSalary, maxSalary);
+      fetchWfhData(searchQuery, dateRange, selectedLocation, selectedSchedule, minSalary, maxSalary);
+      fetchInsuranceData(searchQuery, dateRange, selectedLocation, selectedSchedule, minSalary, maxSalary);
+      fetchNoDegreeData(searchQuery, dateRange, selectedLocation, selectedSchedule, minSalary, maxSalary);
+      fetchCompanyData(searchQuery, dateRange, selectedLocation, selectedSchedule, minSalary, maxSalary);
+      fetchSalaryRateData(searchQuery, dateRange, selectedLocation, selectedSchedule, minSalary, maxSalary);
+      fetchScheduleWfhData(searchQuery, dateRange, selectedLocation, selectedSchedule, minSalary, maxSalary);
+      fetchSalaryTrendData(searchQuery, dateRange, selectedLocation, selectedSchedule, minSalary, maxSalary);
+    }, 500); // Use the same debounce time
+
+    return () => clearTimeout(timerId);
+  }, [
+    searchQuery,
+    dateRange,
+    selectedLocation, // Add filter states
+    selectedSchedule,
+    minSalary,
+    maxSalary,
     fetchCardData,
     fetchChartData,
     fetchScheduleData,
@@ -657,8 +826,80 @@ export default function Page() {
                />
                <DateRangePicker dateRange={dateRange} onChange={setDateRange} />
             </div>
+            {/* Filter Row */}
+            <div className="flex flex-wrap items-center gap-2 px-4 pt-2 lg:px-6">
+              {/* Location Filter */}
+              <div className="flex flex-col space-y-1.5">
+                <Label htmlFor="location-filter">Location</Label>
+                <Select value={selectedLocation} onValueChange={val => setSelectedLocation(val === "__all__" ? "" : val)}>
+                  <SelectTrigger id="location-filter" className="w-[180px]">
+                    <SelectValue placeholder="All Locations" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__all__">All Locations</SelectItem>
+                    <SelectItem value="Anywhere">Anywhere</SelectItem>
+                    <SelectItem value="New York, NY">New York, NY</SelectItem>
+                    <SelectItem value="Atlanta, GA">Atlanta, GA</SelectItem>
+                    <SelectItem value="Chicago, IL">Chicago, IL</SelectItem>
+                    <SelectItem value="United States">United States</SelectItem>
+                    <SelectItem value="Washington, DC">Washington, DC</SelectItem>
+                    <SelectItem value="San Francisco, CA">San Francisco, CA</SelectItem>
+                    <SelectItem value="Dallas, TX">Dallas, TX</SelectItem>
+                    <SelectItem value="Austin, TX">Austin, TX</SelectItem>
+                    <SelectItem value="Charlotte, NC">Charlotte, NC</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              {/* Schedule Filter */}
+              <div className="flex flex-col space-y-1.5">
+                <Label htmlFor="schedule-filter">Schedule</Label>
+                <Select value={selectedSchedule} onValueChange={val => setSelectedSchedule(val === "__all__" ? "" : val)}>
+                  <SelectTrigger id="schedule-filter" className="w-[180px]">
+                    <SelectValue placeholder="All Schedules" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__all__">All Schedules</SelectItem>
+                    <SelectItem value="Full-time">Full-time</SelectItem>
+                    <SelectItem value="Contractor">Contractor</SelectItem>
+                    <SelectItem value="Contractor and Temp work">Contractor and Temp work</SelectItem>
+                    <SelectItem value="Part-time">Part-time</SelectItem>
+                    <SelectItem value="Internship">Internship</SelectItem>
+                    <SelectItem value="Full-time and Part-time">Full-time and Part-time</SelectItem>
+                    <SelectItem value="Temp work">Temp work</SelectItem>
+                    <SelectItem value="Full-time and Contractor">Full-time and Contractor</SelectItem>
+                    <SelectItem value="Full-time and Temp work">Full-time and Temp work</SelectItem>
+                    <SelectItem value="Full-time and Internship">Full-time and Internship</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              {/* Salary Range Filter */}
+              <div className="flex items-end gap-2">
+                <div className="flex flex-col space-y-1.5">
+                  <Label htmlFor="min-salary">Min Salary</Label>
+                  <Input
+                    id="min-salary"
+                    type="number"
+                    placeholder="Min"
+                    value={minSalary}
+                    onChange={(e) => setMinSalary(e.target.value)}
+                    className="w-[100px]"
+                  />
+                </div>
+                <div className="flex flex-col space-y-1.5">
+                  <Label htmlFor="max-salary">Max Salary</Label>
+                  <Input
+                    id="max-salary"
+                    type="number"
+                    placeholder="Max"
+                    value={maxSalary}
+                    onChange={(e) => setMaxSalary(e.target.value)}
+                    className="w-[100px]"
+                  />
+                </div>
+              </div>
+            </div>
              {/* DataTable Moved Here */}
-             <div className="px-4 lg:px-6">
+             <div className="px-4 lg:px-6 pt-2"> {/* Added pt-2 */}
                {isTableLoading ? (
                  <div className="text-center py-10 h-[400px] flex items-center justify-center rounded-lg border bg-card text-muted-foreground">
                    Loading table data...
