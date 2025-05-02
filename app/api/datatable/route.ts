@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
 
   // Add search condition if search query exists
   if (search) {
-    conditions = sql`${conditions} AND (job_title ILIKE ${'%' + search + '%'} OR company_name ILIKE ${'%' + search + '%'} OR location ILIKE ${'%' + search + '%'})`;
+    conditions = sql`${conditions} AND (job_title ILIKE ${'%' + search + '%'} OR company_name ILIKE ${'%' + search + '%'})`;
   }
 
   // Add date range condition if dates are valid

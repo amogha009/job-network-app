@@ -62,7 +62,6 @@ import {
     ChartTooltip,
     ChartTooltipContent,
 } from "@/components/ui/chart"
-import { Checkbox } from "@/components/ui/checkbox"
 import {
     DropdownMenu,
     DropdownMenuCheckboxItem,
@@ -156,32 +155,6 @@ function DragHandle({ id }: { id: number }) {
 
 // Define new columns based on dataJobSchema
 const columns: ColumnDef<DataJob>[] = [
-    {
-        id: "select",
-        header: ({ table }) => (
-            <div className="flex items-center justify-center">
-                <Checkbox
-                    checked={
-                        table.getIsAllPageRowsSelected() ||
-                        (table.getIsSomePageRowsSelected() && "indeterminate")
-                    }
-                    onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-                    aria-label="Select all"
-                />
-            </div>
-        ),
-        cell: ({ row }) => (
-            <div className="flex items-center justify-center">
-                <Checkbox
-                    checked={row.getIsSelected()}
-                    onCheckedChange={(value) => row.toggleSelected(!!value)}
-                    aria-label="Select row"
-                />
-            </div>
-        ),
-        enableSorting: false,
-        enableHiding: false,
-    },
     {
         accessorKey: "id",
         header: "ID",
@@ -357,7 +330,6 @@ export function DataTable({
     onPageChange,
     onPageSizeChange,
 }: DataTableProps) {
-    const [rowSelection, setRowSelection] = React.useState({})
     const [columnVisibility, setColumnVisibility] =
         React.useState<VisibilityState>({})
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -388,14 +360,11 @@ export function DataTable({
         state: {
             sorting,
             columnVisibility,
-            rowSelection,
             columnFilters,
             pagination,
         },
         getRowId: (row) => row.id.toString(),
-        enableRowSelection: true,
         manualPagination: true,
-        onRowSelectionChange: setRowSelection,
         onSortingChange: setSorting,
         onColumnFiltersChange: setColumnFilters,
         onColumnVisibilityChange: setColumnVisibility,
@@ -538,8 +507,7 @@ export function DataTable({
                 </div>
                 <div className="flex items-center justify-between px-4">
                     <div className="hidden flex-1 text-sm text-muted-foreground lg:flex">
-                        {table.getFilteredSelectedRowModel().rows.length} of{" "}
-                        {totalCount} row(s) selected.
+                        {totalCount} row(s) total.
                     </div>
                     <div className="flex w-full items-center gap-8 lg:w-fit">
                         <div className="hidden items-center gap-2 lg:flex">
