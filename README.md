@@ -169,32 +169,34 @@ The primary table used for the dashboard is `data_jobs` (schema detailed in Inst
 
 Key API endpoints for the dashboard include:
 
-- `GET /api/datatable?page={page}&limit={limit}` - Retrieves paginated job data for the table.
-- `GET /api/cards` - Fetches aggregated data for the summary cards.
-- `GET /api/chart` - Gets monthly job posting counts for the main area chart.
-- `GET /api/charts/schedule-types` - Gets job counts grouped by schedule type.
-- `GET /api/charts/top-locations` - Gets top 10 job locations by count.
-- `GET /api/charts/top-companies` - Gets top 5 companies by job count.
-- `GET /api/charts/wfh-distribution` - Gets counts for remote vs. office jobs.
-- `GET /api/charts/health-insurance` - Gets counts for jobs mentioning health insurance.
-- `GET /api/charts/no-degree` - Gets counts for jobs mentioning no degree requirement.
-- `GET /api/charts/avg-salary-trend` - Gets the monthly average salary trend.
-- `GET /api/charts/schedule-wfh-split` - Gets remote/office counts grouped by schedule type.
+- `GET /api/datatable?page={page}&limit={limit}&search={search_term}&startDate={date}&endDate={date}&location={location}&schedule={schedule_type}&minSalary={number}&maxSalary={number}` - Retrieves paginated job data for the table.
+- `GET /api/cards?startDate={date}&endDate={date}&search={search_term}&location={location}&schedule={schedule_type}&minSalary={number}&maxSalary={number}` - Fetches aggregated data for the summary cards.
+- `GET /api/chart?startDate={date}&endDate={date}&search={search_term}&location={location}&schedule={schedule_type}&minSalary={number}&maxSalary={number}` - Gets monthly job posting counts for the main area chart.
+- `GET /api/charts/schedule-types?search={search_term}&location={location}&schedule={schedule_type}&minSalary={number}&maxSalary={number}` - Gets job counts grouped by schedule type.
+- `GET /api/charts/top-locations?search={search_term}&location={location}&schedule={schedule_type}&minSalary={number}&maxSalary={number}` - Gets top 10 job locations by count.
+- `GET /api/charts/top-companies?search={search_term}&location={location}&schedule={schedule_type}&minSalary={number}&maxSalary={number}` - Gets top 5 companies by job count.
+- `GET /api/charts/wfh-distribution?search={search_term}&location={location}&schedule={schedule_type}&minSalary={number}&maxSalary={number}` - Gets counts for remote vs. office jobs.
+- `GET /api/charts/health-insurance?search={search_term}&location={location}&schedule={schedule_type}&minSalary={number}&maxSalary={number}` - Gets counts for jobs mentioning health insurance.
+- `GET /api/charts/no-degree?search={search_term}&location={location}&schedule={schedule_type}&minSalary={number}&maxSalary={number}` - Gets counts for jobs mentioning no degree requirement.
+- `GET /api/charts/avg-salary-trend?search={search_term}&location={location}&schedule={schedule_type}&minSalary={number}&maxSalary={number}` - Gets the monthly average salary trend.
+- `GET /api/charts/schedule-wfh-split?search={search_term}&location={location}&schedule={schedule_type}&minSalary={number}&maxSalary={number}` - Gets remote/office counts grouped by schedule type.
+- `GET /api/charts/salary-rate?search={search_term}` - Gets job counts grouped by salary rate (e.g., hourly, yearly).
+- `GET /api/charts/top-titles-short?search={search_term}` - Gets top 5 short job titles by count.
 
 ## Deployment
 
-The application is deployed as a single Next.js project on Netlify:
+The application is deployed as a single Next.js project.
 
-1. Connect your GitHub repository to Netlify
+1. Connect your GitHub repository to your hosting provider (e.g., Vercel, AWS Amplify).
 2. Configure build settings:
    - Build command: `yarn build`
-   - Publish directory: `.next`
-3. Set up environment variables in the Netlify dashboard
-4. Configure Netlify for serverless functions to support API routes
+   - Publish directory: `.next` (standard for Next.js)
+3. Set up environment variables in your hosting provider's dashboard (refer to `.env.local` for required variables).
+4. Ensure your hosting provider is configured for serverless functions to support Next.js API routes.
 
 ### Live Dashboard
 
-Metrics can be viewed in the Netlify dashboard. Link will be provided soon.
+The live dashboard can be viewed at: [https://job-network-app.vercel.app/dashboard](https://job-network-app.vercel.app/dashboard)
 
 ## Development Roadmap
 
